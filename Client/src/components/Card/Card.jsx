@@ -55,15 +55,15 @@ function Card({ id, name, status, species, gender, origin, image, onClose, addFa
 
 const mapStateToProps = (state) => {
    return {
-      myFavorites: state.myFavorites
-   }
+      myFavorites: state.myFavorites,
+   };
 }
 
 const mapDispatchToProps = (dispatch) => {
    return {
       addFav: (character) => {dispatch(addFav(character)) },
       removeFav: (id) => { dispatch(removeFav(id)) }
-   }
+   };
 }
 
 export default connect(

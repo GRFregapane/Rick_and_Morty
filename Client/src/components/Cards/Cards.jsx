@@ -1,6 +1,6 @@
 import Card from "../Card/Card"
                                           
-export default function Cards({ characters, onClose }) {
+export default function Cards({ characters, onClose }) { 
    return (
       <div>
          {
