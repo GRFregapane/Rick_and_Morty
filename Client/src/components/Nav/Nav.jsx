@@ -1,31 +1,32 @@
-import { Link } from 'react-router-dom';
-import SearchBar from '../SearchBar/SearchBar'; 
+
+import React from "react";
+import style from "../styles/NavBar.module.css";
+import SearchBar from "./SearchBar";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { resetCharacters } from "../redux/actions";
+
+export default function NavBar({ onSearch, logout }) {
+  const dispatch = useDispatch();
+
+  return (
+    <div className={style.nav}>
+      <button onClick={logout}>LogOut</button>
 
 
-const Nav = ({ onSearch, setAccess }) => {  
-   const handleLogOut = () => {
-      setAccess(false);
-   }
-                                          
-    return (
-        <nav>
-            
-            <div>
-                <Link to={'/about'}>
-                    <div>ABOUT</div>
-                </Link>
-                <Link to={'/home'}>
-                    <div>HOME</div>
-                </Link>
-                <Link to={'/favorites'}>
-                    <div>Favorites</div>
-                </Link>
-            </div>
-                
-               <button onClick={handleLogOut}>LOG OUT</button> 
-                <SearchBar onSearch={onSearch}/>   
-        </nav>
-    );
+      <Link className={style.link} to={"/home"}>
+        <button onClick={() => dispatch(resetCharacters())}>Home</button>
+      </Link>
+      <Link className={style.link} to={"/about"}>
+        <div>About</div>
+      </Link>
+      <Link className={style.link} to={"/favorites"}>
+        <div>Favorites</div>
+      </Link>
+      <Link className={style.link} to={"/create"}>
+        <div>Create</div>
+      </Link>
+      <SearchBar onSearch={onSearch} />
+    </div>
+  );
 }
-
-export default Nav;

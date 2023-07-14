@@ -1,69 +1,66 @@
-import Card from "../Card/Card";
-import { connect, useDispatch, useSelector } from 'react-redux'
-import { filterCards, orderCards } from "../../redux/actions";
-import { useState } from "react";
-
-const Favorites = ({ onClose }) => { //onClose por myFavorites
-    const { myFavorites } = useSelector((s) => s); //linea agregada
-    const dispatch = useDispatch();
-    const [aux, setAux] = useState(false);
 
 
-    const handleOrder = (event) => {
-       dispatch(orderCards(event.target.value));
-       setAux(true);
-    }
+import React from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
+import style from "../styles/Cards.module.css";
+import Card from "./Card";
 
-    const handleFilter = (event) => {
-        dispatch(filterCards(event.target.value))
-    }
+import { filterGender, reset, filterAtoZ } from "../redux/actions";
+
+export default function Favorites({ onClose }) {
+  const { myFavorites } = useSelector((s) => s);
+  const dispatch = useDispatch();
+  /*
+Male, Female, Genderless y unknown.
+*/
+  const handleGender = (event) => {
+    const { value } = event.target;
+    dispatch(filterGender(value));
+  };
+
+  const handleAtoZ = (event) => {
+    const { value } = event.target;
+    dispatch(filterAtoZ(value));
+  };
 
 
-    return (
-        <div>
-            <nav>
-           <select onChange={handleOrder}>
-               <option value="A">Ascendente</option>
-               <option value="D">Descendente</option>
-           </select>
-
-
-           <select onChange={handleFilter}>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Genderless">Genderless</option>
-            <option value="unknown">unknown</option>
-            <option value="allCharacters">all Characters</option>
-           </select>
-           </nav>
-        { myFavorites?.map(fav => {
-                return (
-                    <Card
-                    key={fav.id}
-                    id={fav.id}
-                    name={fav.name}
-                    species={fav.species}
-                    gender={fav.gender}
-                    image={fav.image}
-                    onClose={fav.onClose}
-                    />
-                )
-            })
-        }
-        </div>
-
-    );
+ 
+  return (
+    <div className={style.cards}>
+      <nav>
+        <select name="gender" onChange={handleGender} defaultValue={"DEFAULT"}>
+          <option value="DEFAULT" disable>
+            Select Gender:{" "}
+          </option>
+          <option value="Male" disable>
+            Male
+          </option>
+          <option value="Female" disable>
+            Female
+          </option>
+          <option value="Genderless" disable>
+            Genderless
+          </option>
+          <option value="unknown" disable>
+            unknown
+          </option>
+        </select>
+        <select name="gender" onChange={handleAtoZ} defaultValue={"DEFAULT"}>
+          <option value="DEFAULT" disable>
+            Select Order:
+          </option>
+          <option value="A" disable>
+            Ascendente
+          </option>
+          <option value="D" disable>
+            Descendente
+          </option>
+        </select>
+        <button onClick={() => dispatch(reset())}>Reset</button>
+      </nav>
+      {myFavorites?.map((char, index) => {
+        return <Card key={char.id} char={char} onClose={onClose} inFav={true} />;
+      })}
+    </div>
+  );
 }
-
-const mapStateToProps = (state) => {
-    return {
-        myFavorites: state.myFavorites
-    }
-}
-
-
-
-export default connect(
-    mapStateToProps,
-    null
-)(Favorites);

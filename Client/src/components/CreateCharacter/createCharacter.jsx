@@ -1,8 +1,11 @@
+
+
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createCharacter } from "../redux/actions";
 import { useNavigate } from "react-router-dom";
 
+import style from '../styles/CreateCharacter.module.css'
 
 export default function CreateCharacter() {
   const navigate = useNavigate();
@@ -31,7 +34,6 @@ export default function CreateCharacter() {
   });
   const validateInputs = (inputs) => {
     const errors = {};
-    // condicionales
     return errors;
   };
   const handleChange = function (event) {
@@ -65,7 +67,7 @@ export default function CreateCharacter() {
   };
 
   return (
-    <div>
+    <div className={style.container}>
       <form onSubmit={handleSubmit}>
         <label>Id:</label>
         <input
@@ -128,3 +130,13 @@ export default function CreateCharacter() {
     </div>
   );
 }
+
+/*
+id: number
+gender
+image
+name
+origin
+species
+status
+*/

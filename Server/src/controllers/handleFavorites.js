@@ -1,32 +1,68 @@
-let myFavorites = [];
+// POST postFav: "/fav"
+// DELETE deleteFav: "/fav/:id"
+// let myFavorites = [];
+const { User, Favorite } = require("../DB_connection");
 
-const postFav = (req, res) => {
-    try {
-        const character = req.body;
+const STATUS_OK = 200;
+const STATUS_ERROR = 500;
 
-        const characterFound = myFavorites.find(fav.id === character.id);
-     
-        if(characterFound) throw Error('El personaje ya existe en favoritos');
-         
-        myFavorites.push(character);
-     
-         return res.status(200).json(myFavorites);
-        }catch (error) {
-            return res.status(404).send(error.message)  
+const postFav = async function (req, res) {
+  try {
+    const { id, status, name, species, origin, image, gender } = req.body;
+
+    if (id === "RELOAD") {
+      const favorites = await Favorite.findAll();
+      return res.status(STATUS_OK).json(favorites);
+    }
+
+    if (!id || !name || !image) {
+      return res
+        .status(STATUS_ERROR)
+        .json({ message: "error, not found create fav" });
+    }
+    const character = {
+      id,
+      status,
+      name,
+      species,
+      origin: origin?.name,
+      image,
+      gender,
     };
+    console.log(":::::", character);
+
+    const newChar = await Favorite.create(character);
+
+    const favorites = await Favorite.findAll();
+    res.status(STATUS_OK).json(favorites);
+  } catch (error) {
+    res.status(STATUS_ERROR).json({ message: error });
+  }
 };
 
-const deleteFav = (req, res) => {
+const deleteFav = async function (req, res) {
+  try {
     const { id } = req.params;
-
-    myFavorites = myFavorites.filter((favorite) => favorite.id !== +id); 
-
-    return res.status(200).json(myFavorites);
+    const char = await Favorite.findByPk(id);
+    if (char) {
+      await Favorite.destroy({
+        where: {
+          id,
+        },
+      });
+      const favorites = await Favorite.findAll();
+      res.status(STATUS_OK).json(favorites);
+    } else {
+      res
+        .status(STATUS_ERROR)
+        .json({ message: "el character ya ha sido eliminado" });
+    }
+  } catch (error) {
+    res.status(STATUS_ERROR).json({ message: error });
+  }
 };
-
-
 
 module.exports = {
-    postFav,
-    deleteFav
+  deleteFav,
+  postFav,
 };

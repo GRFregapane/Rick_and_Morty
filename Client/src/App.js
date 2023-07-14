@@ -1,82 +1,128 @@
-import './App.css';
-import Cards from './components/Cards/Cards';
-import Nav from './components/Nav/Nav'; 
-import About from './components/About/About'; 
-import Detail from './components/Detail/Detail'; 
-import Login from './components/Login/login'  
-import Favorites from './components/Favorites/Favorites';
-import { useState, useEffect } from 'react';  
-import axios from 'axios'; 
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import "./App.css";
 
+import Cards from "./components/Cards.jsx";
+import NavBar from "./components/NavBar";
+import axios from "axios";
 
-//const email = 'georrf@gmail.com';
-//const password = 'rosario23';
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import Login from "./components/Login";
+import About from "./components/About";
+import Detail from "./components/Detail";
+import ErrorNotFound from "./components/ErrorNotFound";
+import Favorites from "./components/Favorites";
 
-const URL = 'http://localhost:3001/rickandmorty/login/';
+import { connect, useDispatch, useSelector } from "react-redux";
+import {
+  addFav,
+  removeFav,
+  searchChar,
+  removeChar,
+  addChar,
+} from "./redux/actions";
+import CreateCharacter from "./components/CreateCharacter";
 
-function App() {
-   const location = useLocation(); 
-   const navigate = useNavigate(); 
-   const [characters, setCharacters] = useState([]); 
-   const [access, setAccess] = useState(false);  
+export default function App() {
+  const navigate = useNavigate();
+  const [access, setAccess] = useState(false);
+  // const EMAIL = "georrfgmail.com";
+  // const PASSWORD = "rosario23";
 
-      const login = async (userData) => {
-        try{
-           const { email, password } = userData;
-           const { data } = await axios(URL + `?email=${email}&password=${password}`)
-           const { access } = data;
+  const dispatch = useDispatch();
+  const URL = "http://localhost:5040/rickandmorty";
 
-           setAccess(access);
-           access && navigate('/home');
+  async function login(inputs) {
+    try {
+      const { data } = await axios.get(
+        `${URL}/login?password=${inputs.password}&email=${inputs.email}`
+      );
+      if (data.access) {
+        setAccess(true);
+        navigate("/home");
+        return alert("bienvenidos!!!");
+      } else {
+        return alert("no es el usuario");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-       } catch (error) {
-        console.log(error.message);
-   }
-}  
+  async function logout() {
+    try {
+      const { data } = await axios.get(`${URL}/login?password=1234&email=1234`);
+      if (!data.access) {
+        // setAccess(false);
+        // navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
+  const { characters } = useSelector((state) => state);
 
-useEffect(() => {
-      !access && navigate('/')
-   }, [access, navigate])                
+  async function onSearch(id) {
+    try {
+      const { data } = await axios(
+        `http://localhost:5040/rickandmorty/character/${id}`
+      );
+      if (data.name) {
+        dispatch(searchChar(data));
+      } else {
+        window.alert("¡No hay personajes con este ID!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-   const onSearch = async (id) => {  
+  function onClose(id) {
+    dispatch(removeChar(Number(id)));
+    dispatch(removeFav(Number(id)));
+  }
+
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    //* en el useEffect dentro de la function que pasamos por cb podemos crear una function async
+    async function inEffect() {
       try {
-         const { data } = await axios(`http://localhost:3001/rickandmorty/character/${id}`);
+        const { data } = await axios.get(
+          `http://localhost:5040/rickandmorty/allcharacters`
+        );
+        dispatch(addChar(data));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    inEffect();
+  }, []);
 
-         if(data.name) {
-            setCharacters((oldChars) => [...oldChars, data]);
-         };
-   } catch (error) {
-      window.alert('¡No hay personajes con este ID!');
-   }
+  useEffect(() => {
+    dispatch(addFav({ id: "RELOAD" }));
+  }, []);
+
+  return (
+    <>
+      {/* <h1>{title}</h1> */}
+      {pathname === "/" ? null : <NavBar logout={logout} onSearch={onSearch} />}
+
+      <Routes>
+        <Route path="/" element={<Login login={login} />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/home" element={<Cards onClose={onClose} />}></Route>
+        <Route
+          path="/favorites"
+          element={<Favorites onClose={onClose} />}
+        ></Route>
+        <Route path="/create" element={<CreateCharacter />}></Route>
+        <Route path="/detail/:id" element={<Detail />}></Route>
+        <Route path="*" element={<ErrorNotFound />}></Route>
+      </Routes>
+    </>
+  );
 }
 
-const onClose = (id) => {
-  const charactersFiltered = characters.filter(characters =>
-       characters.id !== Number(id)) 
-        setCharacters(charactersFiltered)
-    }  
-  
-  
-   return (
-      <div className='App'>
-         {                                  
-            location.pathname !== '/' ? <Nav onSearch={onSearch} setAccess={setAccess} /> : null
-         }
-         
-        <Routes>
-           <Route path='/' element={<Login login={login}/>} /> 
-           <Route path='/home' element={ <Cards characters={characters} onClose={onClose}/> }/>
-           <Route path='/about' element={<About/>} />
-           <Route path='/detail/:id' element={<Detail/>} />
-           <Route path='favorites' element={<Favorites/>} />
-        </Routes>
-         
 
-      </div>
-   );
-}
-
-export default App;
 

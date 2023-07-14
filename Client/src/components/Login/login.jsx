@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import style from "../styles/Login.module.css";
 
 const regExEmail = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 const regexPassword =
@@ -69,10 +70,10 @@ export default function Login({ login }) {
   return (
     console.log("--> ", inputs, inputsErrors),
     (
-      <div>
+      <div className={style.login}>
         <form onSubmit={handleSubmit}>
           <h1>Rick & Morty</h1>
-          <div>
+          <div className={style.inputs}>
             <label>Email: </label>
             <input
               type="text"
